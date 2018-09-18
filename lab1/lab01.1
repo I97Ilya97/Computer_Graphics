@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+</HEAD>
+<BODY style="margin:0px">
+
+<canvas id='lab01.1' height='300' width='500'>
+</canvas>
+
+<script>
+   var canvas2 = document.getElementById("lab01.1");
+   var ctx2 = canvas2.getContext("2d");
+   var xpos = 10;
+   var ypos = 10;
+   var direction = 1;
+
+   var timer = setInterval( function(){
+                 switch(direction) {
+                    case 1 : if( xpos < 490 ){ 
+                                xpos +=1;
+                             }
+                             else{
+                                direction = 2;
+                             }
+                             break;
+                    case 2 : if( ypos < 290 ){ 
+                                ypos +=1;
+                             }
+                             else{
+                                direction = 3;
+                             }
+                             break;
+                    case 3 : if( xpos > 10 ){ 
+                                xpos -=1;
+                             }
+                             else{
+                                direction = 4;
+                             }
+                             break;
+                    case 4 : if( ypos > 10 ){ 
+                                ypos -=1;
+                             }
+                             else{
+                                direction = 5;
+                             }
+                             break;
+                    case 5 : timer = 1;
+                 }
+                 ctx2.fillRect( xpos, ypos, 3, 3 ); 
+               }, 10 );
+
+</script>
+
+
+
+</BODY>
+</HTML>
