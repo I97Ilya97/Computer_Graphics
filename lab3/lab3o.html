@@ -1,0 +1,90 @@
+<HTML>
+<HEAD>
+<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+</HEAD>
+
+<BODY>
+Исходное изображение===>Медианный фильтр
+<br/>
+
+	<canvas height='225' width='650' id='lab02'></canvas>
+	
+	
+	<script>
+		var canvas = document.getElementById("lab02");
+		var ctx = canvas.getContext("2d");
+		
+		var img = new Image();
+		img.src = "Valve_original.PNG";
+	//	img.src = "rr.PNG";
+
+		var rows = 300*225, columns = 4;
+		var pix_array = new Array(rows);
+		var pix_array1 = new Array(rows);
+		var imageData;
+
+
+		
+		img.onload = function() 
+		{
+			ctx.fillStyle = '#AF5200'; // меняем цвет клеток
+			ctx.fillRect(0, 0, 300, 225);
+                 
+			ctx.fillStyle = '#FF0000'; // меняем цвет клеток
+			ctx.fillRect(350, 0, 300, 225);
+
+			ctx.drawImage(img, 0, 0);
+
+//			ctx.drawImage(img, 350, 0);
+		
+
+			imageData = ctx.getImageData(0, 0, 300, 225);
+			for (var i = 0; i < rows; i++)
+			{
+				pix_array[i] = new Array(columns);
+				for (var j = 0; j < columns; j++) 
+				{
+					pix_array[i][j] = imageData.data[i * 4 + j];
+				}
+			}
+
+			for (var i = 0; i < 300; i++)
+                          for (var j = 0; j < 225; j++){ 
+
+			    ii = j*300+i;                              
+                            pix_array1[ii] = new Array(columns);
+
+			    if( i>0 && i<299 & j>0 && j <224 ){
+			      for( var c=0; c<4; c++ ){
+
+//			         a = pix_array[ii][c];
+
+			         ii1 = ii-300;
+			         a = pix_array[ii1-1][c]+ pix_array[ii1][c]+ pix_array[ii1+1][c];
+			         a = a+ pix_array[ii][c]+ pix_array[ii][c]+ pix_array[ii+1][c];
+			         ii1 = ii+300;
+			         a = a+ pix_array[ii1-1][c]+ pix_array[ii1][c]+ pix_array[ii1+1][c];
+
+			         a = a/9;
+
+                                 pix_array1[ii][c] = a;
+			      }
+			    }
+
+			  }
+			for (var i = 0; i < rows; i++)
+			{
+				for (var j = 0; j < columns; j++) 
+				{
+					imageData.data[i * 4 + j] = pix_array1[i][j];
+				}
+			}
+                        ctx.putImageData(imageData, 350, 0);
+
+		}
+                                       
+
+	</script>
+
+</BODY>
+</HTML>
