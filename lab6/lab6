@@ -1,0 +1,547 @@
+
+<!doctype html>
+<html>
+	<head>
+		<title>rectExample Алгоритм Кируса Бека</title>
+                <meta http-equiv="content-type" content="text/html; charset=windows-1251">
+	</head>
+	<body>
+		<canvas id='example'>Обновите браузер</canvas>
+		<br/>
+		<br/>
+                Алгоритм Кируса Бека
+		<br/>
+		<script>
+			var example = document.getElementById("example"),
+                            elemLeft= example.offsetLeft,
+                            elemTop = example.offsetTop,
+                            rRect, pnt1, pnt2,
+			    ctx     = example.getContext('2d');
+                            mnogoug = new Array();
+                        function DrawLineL(){
+                          var t = mnogoug.length;
+			  var p1 = mnogoug[t-1];
+                          var p2 = mnogoug[0];
+                          ctx.beginPath();
+                          ctx.moveTo( p1.px, p1.py );
+                          ctx.lineTo( p2.px, p2.py );
+                          ctx.closePath();
+                          ctx.stroke();
+                        }
+
+
+			rRect= 1;
+			x1R = -1;
+                        function setInputLine(){
+                          if( mnogoug.length >= 3 ){ 
+                              DrawLineL();
+                              rRect = -1;
+                          }
+                        }
+                        function setInputRect(){
+                          rRect = 1;
+                          mnogoug = new Array();
+                        }
+                        function maxi( arr, n) {
+                           var m = arr[0];
+                           var i;
+                           for ( i = 1; i < n; ++i)
+                             if (m < arr[i])
+                                m = arr[i];
+                           return m;
+                        }
+                        function mini( arr, n) {
+                           var m = arr[0];
+                           var i;
+                           for ( i = 1; i < n; ++i)
+                             if (m > arr[i])
+                                m = arr[i];
+                           return m;
+                        }
+                        function middle( pnt1, pnt2 ){
+                           var p = {
+				      px : (pnt1.px+pnt2.px)/2,
+				      py : (pnt1.py+pnt2.py)/2
+				   }
+			   return p;
+                        }
+                        function addVec( pnt1, pnt2 ){
+                           var p = {
+				      px : (pnt1.px+pnt2.px),
+				      py : (pnt1.py+pnt2.py)
+				   }
+			   return p;
+                        }
+                        function addVecX( pnt1, pnt2, tx ){
+                           var p = {
+				      px : (pnt1.px+pnt2.px*tx),
+				      py : (pnt1.py+pnt2.py*tx)
+				   }
+			   return p;
+                        }
+                        function subtrVec( pnt1, pnt2 ){
+                           var p = {
+				      px : (-pnt1.px+pnt2.px),
+				      py : (-pnt1.py+pnt2.py)
+				   }
+			   return p;
+                        }
+
+
+                        function  DotProduct (v1, v2){ 
+   			   return v1.px*v2.px + v1.py*v2.py;
+			}
+                        function CalcNormal( v1, v2, v3 ){
+                          var norm, 
+			      dx = v2.px - v1.px,
+                              dy = v2.py - v1.py,
+                              nn = Math.sqrt(dx*dx+dy*dy);
+                              if( nn>0 ){
+                                dx = dx/nn*20;
+                                dy = dy/nn*20;
+                                vec = 	{
+					 px : v3.px-v1.px,
+					 py : v3.py-v1.py
+					}
+
+                                norm = 	{
+					 px : -dy,
+					 py : dx
+					}
+
+/*
+
+                             var v5 = middle(v2, v1 );
+                             var v6 = addVec(v5, norm );
+
+
+                             ctx.strokeStyle = '#FF0000';
+                             ctx.beginPath();
+                             ctx.moveTo( v5.px, v5.py );
+                             ctx.lineTo( v6.px, v6.py );
+                             ctx.closePath();
+                             ctx.stroke();
+*/
+
+
+				if( DotProduct( norm, vec ) < 0 ){
+				  norm.px = -norm.px;
+				  norm.py = -norm.py;
+				}
+                              }
+                              else{
+                                norm = 	{
+					 px : 0,
+					 py : 0
+					}
+                              }
+                          return norm;
+                        }
+
+			function kirusa_becka_clipper( pnt1, pnt2, 
+                                                       mng) {
+                           var k=mng.length, norm,
+                               i1=k-2,i2=k-1,i3=0,
+                               t1 = 0, t2 = 1;
+                           var dirV = subtrVec( pnt1, pnt2 );
+                           for( i3=0; i3<k; i3++){
+                             norm = CalcNormal( mng[i1], mng[i2], mng[i3] );
+
+
+                             var v5 = middle( mng[i1], mng[i2]  );
+                             var v6 = addVec( v5, norm );
+
+
+                             ctx.strokeStyle = '#FF0000';
+                             ctx.beginPath();
+                             ctx.moveTo( v5.px, v5.py );
+                             ctx.lineTo( v6.px, v6.py );
+                             ctx.closePath();
+                             ctx.stroke();
+
+
+                             var F = subtrVec( mng[i1], pnt2 );
+                             var chisl = DotProduct( norm, F );
+                             var znam = DotProduct( norm, dirV );
+                             if( znam == 0.00 ){
+                             }
+                             else{
+                               var t = chisl/znam;
+
+                               var pntx = addVecX( pnt2, dirV, -t );
+ 
+                               //if( i1==0){
+                                  ctx.strokeStyle = '#FF00FF';
+                                  ctx.strokeRect(pntx.px-3, pntx.py-3, 6, 6 );
+
+                                  ctx.beginPath();
+                                  ctx.moveTo( mng[i1].px, mng[i1].py );
+                                  ctx.lineTo( mng[i2].px, mng[i2].py );
+                                  ctx.closePath();
+                                  ctx.stroke();
+
+
+                             //  }
+                               if( znam < 0.00 ){
+                                 if( t > t1 ){
+                                   t1 = t;
+                                 }
+                               }
+                               else{
+                                 if( t < t2 ){
+                                   t2 = t;
+                                 }
+                                 
+                               }
+                             }
+                             i1 = i2;
+                             i2 = i3;
+                           }
+                           if( t1 < t2 ){
+
+                              var pntx1 = addVecX( pnt2, dirV, -t1 );
+                              var pntx2 = addVecX( pnt2, dirV, -t2 );
+ 
+                              ctx.strokeStyle = '#000000';
+                              ctx.strokeRect(pntx1.px-3, pntx1.py-3, 6, 6 );
+                              ctx.strokeRect(pntx2.px-3, pntx2.py-3, 6, 6 );
+
+                              ctx.beginPath();
+                              ctx.moveTo( pntx1.px, pntx1.py );
+                              ctx.lineTo( pntx2.px, pntx2.py );
+                              ctx.closePath();
+                              ctx.stroke();
+                           }
+                        }
+
+
+
+
+
+/*
+                        function liang_barsky_clipper( xmin, ymin, 
+                                                       xmax, ymax,
+                                                       x1, y1, x2, y2) {
+                          var p1,p2,p3,p4,q1,q2,q3,q4;
+                          var posarr = [];
+                          var negarr = [];
+                          var posind = 1, negind = 1;
+                          var xn1, yn1, xn2, yn2;
+                          var rn1, rn2;
+
+                          p1 = -(x2 - x1);
+                          p2 = -p1;
+                          p3 = -(y2 - y1);
+                          p4 = -p3;
+
+                          q1 = x1 - xmin;
+                          q2 = xmax - x1;
+                          q3 = y1 - ymin;
+                          q4 = ymax - y1;
+
+                          posarr[0] = 1;
+                          negarr[0] = 0;
+
+                          if ((p1 == 0 && q1 < 0) || (p3 == 0 && q3 < 0)) {
+                             alert("Line is parallel to clipping window!");
+                             return;
+                          }
+
+                          if (p1 != 0) {
+                             var r1 = q1 / p1;
+                             var r2 = q2 / p2;
+                             if (p1 < 0) {
+                                negarr[negind++] = r1; // При отрицательном p1, добавляем r1 к отрицательному массиву
+                                posarr[posind++] = r2; // и добавляем r2 к положительному массиву
+                             } else {
+                                negarr[negind++] = r2;
+                                posarr[posind++] = r1;
+                             }
+                          }
+                          if (p3 != 0) {
+                             var r3 = q3 / p3;
+                             var r4 = q4 / p4;
+                             if (p3 < 0) {
+                                negarr[negind++] = r3;
+                                posarr[posind++] = r4;
+                             } else {
+                                negarr[negind++] = r4;
+                                posarr[posind++] = r3;
+                             }
+                          }
+                          rn1 = maxi(negarr, negind); // Максимум отрицательного массива
+                          rn2 = mini(posarr, posind); // Минимум положительного массива
+
+                          if (rn1 > rn2) { // Отклоняем
+                             alert("Line is parallel to clipping window 2!");
+                             return;
+                          }
+
+                         xn1 = x1 + p2 * rn1;
+                         yn1 = y1 + p4 * rn1; // Вычисляем новые точки
+
+                         xn2 = x1 + p2 * rn2;
+                         yn2 = y1 + p4 * rn2;
+
+
+			ctx.strokeStyle = '#0000FF'; // меняем цвет рамки
+                        ctx.beginPath();
+                        ctx.moveTo( x1, y1 );
+                        ctx.lineTo( x2, y2 );
+                        ctx.closePath();
+                        ctx.stroke();
+
+			ctx.strokeStyle = '#FF0000'; // меняем цвет рамки
+                        ctx.beginPath();
+                        ctx.moveTo( x1,  y1 );
+                        ctx.lineTo( xn1, yn1);
+
+                        ctx.moveTo( x2,  y2 );
+                        ctx.lineTo( xn2, yn2);
+                        ctx.closePath();
+                        ctx.stroke();
+
+                        }
+*/
+                        function VectMult( v1,v2 ){
+                          var xx1 = v1.p2.px - v1.p1.px;
+                              yy1 = v1.p2.py - v1.p1.py;
+                              xx2 = v2.p2.px - v2.p1.px;
+                              yy2 = v2.p2.py - v2.p1.py;
+                              r1 = xx1*yy2;
+                              r2 = yy1*xx2;
+                              return r1-r2;
+//                          return (v1.p2.px - v1.p1.px )*(v2.p2.py - v2.p1.py ) -
+//                                 (v1.p2.py - v1.p1.py )*(v2.p2.px - v2.p1.px ); 
+                        }
+                        function DrawLine(){
+                          var t = mnogoug.length;
+			  var p1 = mnogoug[t-1];
+                          var p2 = mnogoug[t-2];
+                          ctx.beginPath();
+                          ctx.moveTo( p1.px, p1.py );
+                          ctx.lineTo( p2.px, p2.py );
+                          ctx.closePath();
+                          ctx.stroke();
+                        }
+                        function InnerPoint( pnt ){
+                          if( mnogoug.length<3 ){
+                            return false;
+                          }
+                          var t = mnogoug.length;
+                          var rez = 0;
+			  var p1 = mnogoug[t-1];
+			  for( i=0; i<t; i++){
+                            var p2 = mnogoug[i];
+                            var v1 = { p1 : p1,
+                                       p2 : p2 };
+                            var v2 = { p1 : p1,
+                                       p2 : pnt };
+                            var vv = VectMult( v1, v2 );
+                            if( vv*rez >= 0 ){
+                               if( rez==0 ){
+                                 rez = vv;
+                               }
+                            }
+                            else{
+                              return false;
+                            }
+                            p1 = p2;
+			  }
+			  return true;
+                        }
+                        function AddPoint( pnt ){
+                          if( mnogoug.length<3 ){
+                            return false;
+                          }
+                          var t = mnogoug.length;
+
+			  var p1 = mnogoug[0];
+                          var p2 = mnogoug[1];
+			  var p3 = mnogoug[2];
+                          var v1 = { p1 : p1,
+                                     p2 : p2 };
+                          var v2 = { p1 : p2,
+                                     p2 : p3 };
+                          var rez = VectMult( v1, v2 );
+                          v2 = { p1 : pnt,
+                                 p2 : p1 };
+
+                          var vv = VectMult( v2, v1 );
+                          if( vv*rez < 0 ){
+                              return false;
+                          }
+                          p2 = mnogoug[t-1];
+                          v1 = { p1 : p2,
+                                 p2 : pnt };
+                          v2 = { p1 : pnt,
+                                 p2 : p1 };
+                          vv = VectMult( v1, v2 );
+                          if( vv*rez < 0 ){
+                              return false;
+                          }
+			  p1 = mnogoug[t-2];
+                          v1 = { p1 : p1,
+                                 p2 : p2 };
+                          v2 = { p1 : p2,
+                                 p2 : pnt };
+                          vv = VectMult( v1, v2 );
+                          if( vv*rez < 0 ){
+                              return false;
+                          }
+			  return true;
+                        }
+
+                        example.addEventListener('click', function(event) {
+                                                   var x = event.pageX - elemLeft,
+                                                       y = event.pageY - elemTop;
+                                                       pnt = {
+								px : x,
+								py : y
+							     }
+                                                   if( rRect > 0 ){
+                                                       if( mnogoug.length<3 || 
+                                                           AddPoint(pnt) ){
+                                                           mnogoug.push(pnt);
+							   ctx.strokeStyle = '#0000FF'; // меняем цвет рамки
+                                                           if( mnogoug.length>1 ){
+                                                             DrawLine();
+                                                           }
+                                                       } else {
+                                                      	  ctx.strokeStyle = '#FF0000';
+                                                       }
+                                                       ctx.strokeRect(x-5, y-5, 10, 10);
+
+
+                                                   }
+                                                   else{
+						     ctx.strokeStyle = '#FFFF00'; // меняем цвет рамки
+                                                     ctx.strokeRect(x-5, y-5, 10, 10);
+
+                                                     if( rRect != -2 ){
+                                                       pnt1 = pnt;
+                                                       rRect = -2;
+                                                     }
+                                                     else{
+                                                       pnt2 = pnt;
+                                                       rRect = -1;
+
+                                                       ctx.beginPath();
+                                                       ctx.moveTo( pnt1.px, pnt1.py );
+                                                       ctx.lineTo( x, y );
+                                                       ctx.closePath();
+                                                       ctx.stroke();
+                                                       kirusa_becka_clipper( pnt1,pnt2, mnogoug );
+                                                     }
+                                                   }
+/**********************************************
+                                                   if( rbeg == 0 ){
+                                                      rbeg = 1;
+                                                      xbeg = x;
+                                                      ybeg = y;
+                                                   } else {
+                                                      rbeg = 0;
+
+                                                      ctx.strokeStyle = '#000000';
+                                                      if( rRect > 0 ){
+                                                        var tx1,tx2,ty3,ty4;
+                                                        if( xbeg<x ){
+                                                          tx1 = xbeg;
+                                                          tx2 = x;
+                                                        } else 
+                                                        if( xbeg>x ){
+                                                          tx1 = x;
+                                                          tx2 = xbeg;
+                                                         
+                                                        } else {
+                                                          alert("x1 = x2");
+                                                          x1R = -1;
+                                                          return;
+                                                        }
+                                                        if( ybeg<y ){
+                                                          ty1 = ybeg;
+                                                          ty2 = y;
+                                                        } else 
+                                                        if( ybeg>y ){
+                                                          ty1 = y;
+                                                          ty2 = ybeg;
+                                                         
+                                                        } else {
+                                                          alert("x1 = x2");
+                                                          x1R = -1;
+                                                          return;
+                                                        }
+
+
+                                                        ctx.strokeRect(x, y, xbeg-x, ybeg-y );
+                                                        x1R = tx1;
+                                                        y1R = ty1;
+                                                        x2R = tx2;
+                                                        y2R = ty2;                                                      
+                                                      }
+                                                      else {
+                                                        if( x1R > 0 ){
+                                                           liang_barsky_clipper(
+                                                             x1R,y1R,x2R,y2R,
+                                                             x,y,
+                                                             xbeg,ybeg
+                                                           );
+                                                        }
+                                                        else {
+                                                           ctx.beginPath();
+                                                           ctx.moveTo( xbeg, ybeg );
+                                                           ctx.lineTo( x, y );
+                                                           ctx.closePath();
+                                                           ctx.stroke();
+                                                        }
+                                                      }
+                                                   }
+                                                   //alert("hello world");
+**********************************************/
+
+                                                 } );
+                        function setInput(){
+                          alert( "setInput!!" );
+                        }
+			example.height = 480;
+			example.width  = 640;
+			ctx.strokeStyle = '#B70A02'; // меняем цвет рамки
+			ctx.strokeRect(1, 1, 638, 478);
+			ctx.strokeRect(3, 3, 634, 474);
+
+			rbeg = 0;
+			ctx.fillStyle = '#FFFFFF'; // меняем цвет клеток
+			ctx.strokeStyle = '#0000FF'; // меняем цвет рамки
+                        ctx.moveTo( 0, 0 );
+                        ctx.lineTo( 639, 479 );
+
+		</script>
+
+        
+          <fieldset> <legend><b>Что рисовать?</b></legend>
+          <label><input type="radio" name="fig1" value="rect1" checked="checked" onclick="setInputRect()">выпуклый многоугольник</label>
+          <label><input type="radio" name="fig1" value="lin1" onclick="setInputLine()">отрезки</label>
+          </fieldset>
+          <p>
+<!--          <input type="reset" value="Сбросить"> 
+          <input type="submit" value="Выбрать" onclick="setInput()"></p>  -->
+        
+	</body>
+</html>
+
+
+
+<!--
+/*
+
+			ctx.strokeRect(15, 15, 266, 266);
+			ctx.strokeRect(18, 18, 260, 260);
+			ctx.fillStyle = '#AF5200'; // меняем цвет клеток
+			ctx.fillRect(20, 20, 256, 256);
+			for (i = 0; i < 8; i += 2)
+				for (j = 0; j < 8; j += 2) {
+					ctx.clearRect(20 + i * 32, 20 + j * 32, 32, 32);
+					ctx.clearRect(20 + (i + 1) * 32, 20 + (j + 1) * 32, 32, 32);
+				}
+*/
+-->
